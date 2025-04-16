@@ -34,5 +34,5 @@ def generate_case_id():
         last_number = int(last_case.case_id.replace("INC", ""))
         new_number = last_number + 1
     else:
-        new_number = 250001 
+        new_number = 250000 
     return f"INC{new_number}"

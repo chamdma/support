@@ -17,11 +17,15 @@ async def create_support_case(
     issue_detail: str = Body(...),
     customer_fname: str = Body(...),
     customer_lname: str = Body(...),
-    update_profile: bool = Body(...)
+    update_profile: bool = Body(...),
+    source:str=Body(...),
+    type: str = Body(...),
+    version:str=Body(...)
 ):
     try:
         created_at = datetime.utcnow()
         updated_at = datetime.utcnow()
+        access_token = create_access_token({"case_id": generate_case_id()}) 
 
         new_case = SupportCase(
             id=ObjectId(),
@@ -34,13 +38,19 @@ async def create_support_case(
             customer_fname=customer_fname,      
             customer_lname=customer_lname,    
             created_at=created_at,
-            updated_at=updated_at
+            updated_at=updated_at,
+            source=source,
+            type=type,
+            version=version
+
         )
+        new_case.access_token = access_token
+
 
         new_case.id = str(new_case.id)
         new_case.save()
 
-        case_data = new_case.to_mongo() 
+        case_data = new_case.to_mongo()
         case_data["created_at"] = case_data["created_at"].isoformat(timespec='seconds') + "Z"
         case_data["updated_at"] = case_data["updated_at"].isoformat(timespec='seconds') + "Z"
 
@@ -48,6 +58,7 @@ async def create_support_case(
             "status": True,
             "status_code": 200,
             "description": "Customer support added successfully",
+            "access_token": access_token,
             "data": [case_data]
         }
 

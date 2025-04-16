@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, ObjectIdField, BooleanField,DateTimeField
+from mongoengine import Document, StringField, BooleanField,DateTimeField,ObjectIdField
 from datetime import datetime
 
 class SupportCase(Document):
@@ -15,3 +15,6 @@ class SupportCase(Document):
     update_profile = BooleanField(default=False)
     created_at = DateTimeField(default=datetime.utcnow)
     updated_at = DateTimeField(default=datetime.utcnow) 
+    source=StringField(required=True)
+    type=StringField(required=True)
+    version=StringField(required=True)
