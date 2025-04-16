@@ -27,12 +27,13 @@ def jwt_bearer_auth(credentials: HTTPAuthorizationCredentials = Security(securit
     token = credentials.credentials
     payload = decode_jwt_token(token)
     return payload  
-
 def generate_case_id():
     last_case = SupportCase.objects.order_by("-case_id").first()
+    
     if last_case and last_case.case_id.startswith("INC"):
         last_number = int(last_case.case_id.replace("INC", ""))
         new_number = last_number + 1
     else:
-        new_number = 250000 
-    return f"INC{new_number}"
+        new_number = 1 
+
+    return f"INC{str(new_number).zfill(7)}"  
