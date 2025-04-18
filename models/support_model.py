@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, BooleanField,DateTimeField,ObjectIdField
+from mongoengine import Document, StringField, BooleanField,DateTimeField,ListField
 from datetime import datetime
 
 class SupportCase(Document):
@@ -11,10 +11,15 @@ class SupportCase(Document):
     customer_lname = StringField(required=True)
     email_subject = StringField(required=True)
     issue_detail = StringField(required=True)
-    case_status = StringField(default="Work in Progress")
+    case_status = StringField(default="Resolved")
     update_profile = BooleanField(default=False)
+    case_analysis=ListField(required=True)
+    case_update=ListField(required=True)
+    replay_main=ListField(required=True)
+    attachments=ListField(required=True)
     created_at = DateTimeField(default=datetime.utcnow)
     updated_at = DateTimeField(default=datetime.utcnow) 
+    assigned_to = StringField(default="")
     source=StringField(required=True)
     type=StringField(required=True)
     version=StringField(required=True)

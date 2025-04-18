@@ -30,7 +30,7 @@ async def create_support_case(
         new_case = SupportCase(
             id=ObjectId(),
             case_id=generate_case_id(),
-            case_status="Work in Progress",
+            case_status="Resolved",
             customer_name=customer_name,
             customer_email=customer_email,
             email_subject=email_subject,
@@ -45,7 +45,6 @@ async def create_support_case(
 
         )
         new_case.access_token = access_token
-
 
         new_case.id = str(new_case.id)
         new_case.save()
@@ -69,4 +68,65 @@ async def create_support_case(
             "description": f"Error creating support case: {str(e)}",
             "data": [],
             "error": str(e)
+        }
+    
+@router.post("/support/case/list")
+async def list_support_case(
+    request:Request,
+    search: str = Body(...),
+    case_status:str=Body(...),
+    assigned_to:str=Body(""),
+    sort_by:str=Body("created_at"),
+    sort_order:str=Body("asc")                           
+):
+    try:
+        query = SupportCase.objects()
+        if search:
+            query = query.filter(case_id__icontains=search)
+        if case_status:
+            query = query.filter(case_status=case_status)
+
+        if assigned_to:
+            query = query.filter(assigned_to=assigned_to)
+           
+
+        sort_field = "+" + sort_by if sort_order == "asc" else "-" + sort_by
+        cases = query.order_by(sort_field)
+
+        cases = query.all() 
+
+        if not cases:
+            return {
+                "status": True,
+                "status_code": 200,
+                "description": "No support cases found",
+                "data": []
+            }
+        
+        case_list=[
+            {
+                "case_id":case.case_id,
+                "case_status":case.case_status,
+                "assigned_to": case.assigned_to,
+                "customer_name":case.customer_name,
+                "customer_email":case.customer_email,
+                "email_subject":case.email_subject,
+                "created_at":case.created_at.isoformat(),
+                "updated_at":case.updated_at.isoformat(),
+                "assigned_to":case.assigned_to
+
+            }
+            for case in cases
+        ]
+        return {
+            "status": True,
+            "status_code": 200,
+            "description": "Customer support case list fetched successfully",
+            "data": case_list
+        }
+    except Exception as e:
+        return {
+            "status": False,
+            "status_code": 500,
+            "description": f"Error fetching support cases: {str(e)}"
         }
